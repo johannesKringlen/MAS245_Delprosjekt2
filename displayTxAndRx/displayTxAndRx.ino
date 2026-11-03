@@ -3,7 +3,7 @@
  *Teensy CAN-Bus with OLED 128x64 demo
  * www.skpang.co.uk
  */
-#include <FlexCAN.h>  //canbus communication
+#include <FlexCAN_T4.h>  //canbus communication
 #include <SPI.h> // SPI communication with screen
 #include <Adafruit_GFX.h> // text and grapix functionality
 #include <Adafruit_SSD1306.h> // for controller for screen
@@ -18,10 +18,12 @@ IntervalTimer TX_timer;
 volatile uint32_t can_msg_tx_count = 0;
 uint32_t can_msg_rx_count = 0;
 
+FlexCAN_T4<CAN0> Can0;
 
 void setup(){
   
-  Can0.begin(500000); //set speed here.   
+  Can0.begin();
+  Can0.setBaudRate(500000);   
   
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
