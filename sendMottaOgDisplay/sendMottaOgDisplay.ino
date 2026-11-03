@@ -13,28 +13,23 @@
  * 
  *  
  */
-#include <FlexCAN.h>
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-#include <Fonts/FreeMono9pt7b.h>
+#include <FlexCAN.h>  //canbus communication
+#include <SPI.h> // SPI communication with screen
+#include <Adafruit_GFX.h> // text and grapix functionality
+#include <Adafruit_SSD1306.h> // for controller for screen
 
 #define OLED_DC     6
 #define OLED_CS     10
 #define OLED_RESET  5
 Adafruit_SSD1306 display(128, 64, &SPI, OLED_DC, OLED_RESET, OLED_CS);
 
-static CAN_message_t msg,rxmsg;
+static CAN_message_t msg,rxmsg; //sent message, recived message
 volatile uint32_t count = 0;
 IntervalTimer TX_timer;
 String CANStr(""); 
-volatile uint32_t can_msg_count = 0;
+volatile uint32_t can_msg_tx_count = 0;
 
-unsigned long sistMottatt = 0;
 const unsigned long timeoutMs = 2000;
-bool viserMelding = false;
 
 void setup(){
   
@@ -63,15 +58,6 @@ void setup(){
   
   display.clearDisplay();
   
-  msg.buf[0] = 1;
-  msg.buf[1] = 2;
-  msg.buf[2] = 0;
-  msg.buf[3] = 0;
-  msg.buf[4] = 0;
-  msg.buf[5] = 0;
-  msg.buf[6] = 0;
-  msg.len = 8;
-  msg.id = 0x7DF;
   msg.flags.extended = 0; 
   msg.flags.remote = 0;
 //  msg.timeout = 500;
@@ -94,26 +80,32 @@ void tx_CAN(void)
   msg.buf[6] = 0;
   msg.buf[7] = 0;
   /*
-  msg.buf[4] = can_msg_count >> 24;
-  msg.buf[5] = can_msg_count >> 16;
-  msg.buf[6] = can_msg_count >> 8;
-  msg.buf[7] = can_msg_count;
+  msg.buf[4] = can_msg_tx_count >> 24;
+  msg.buf[5] = can_msg_tx_count >> 16;
+  msg.buf[6] = can_msg_tx_count >> 8;
+  msg.buf[7] = can_msg_tx_count;
   */
   Can0.write(msg);
   Can1.write(msg);
-  can_msg_count++;
+  can_msg_tx_count++;
 }
 
 void loop() {
-  while (Can0.read(rxmsg)) {
-    // Husk når siste melding kom
-    sistMottatt = millis();
-    viserMelding = true;
 
-    String CANStr = "";
+  // while (Can0.read(rxmsg)) {
+  //   String CANStr = "";
 
-    for (int i = 0; i < rxmsg.len; i++) {
-      CANStr += String(rxmsg.buf[i], HEX);
+  //   for (int i = 0; i < rxmsg.len; i++) {
+  //     CANStr += String(rxmsg.buf[i], HEX);
+  //     CANStr += " ";
+  //   }
+
+  while (Can0.write(msg))
+  {
+  String CANStr = "";
+
+    for (int i = 0; i < msg.len; i++) {
+      CANStr += String(msg.buf[i], HEX);
       CANStr += " ";
     }
 
@@ -127,17 +119,11 @@ void loop() {
     // Vis mottatt melding
     display.clearDisplay();
     display.setCursor(0, 15);
-    display.println(rxmsg.id, HEX);
-    display.println(rxmsg.len);
+    display.println(msg.id, HEX);
+    display.println(msg.len);
     display.println(CANStr);
+    display.println(can_msg_tx_count);
     display.display();
-  }
-
-  // Tøm skjermen etter 2 sekunder uten mottatte meldinger
-  if (viserMelding && millis() - sistMottatt >= timeoutMs) {
-    display.clearDisplay();
-    display.display();
-    viserMelding = false;
   }
 }
 
