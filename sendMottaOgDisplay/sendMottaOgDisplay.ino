@@ -1,4 +1,6 @@
-/* Teensy CAN-Bus with OLED 128x64 demo
+/* 
+ *Programmet er en modifisert versjon av:
+ *Teensy CAN-Bus with OLED 128x64 demo
  *  
  * www.skpang.co.uk
  * 
@@ -18,11 +20,6 @@
 #include <Adafruit_SSD1306.h>
 
 #include <Fonts/FreeMono9pt7b.h>
-const int JOY_LEFT = 18;
-const int JOY_RIGHT = 17;
-const int JOY_CLICK =19;
-const int JOY_UP  = 22;
-const int JOY_DOWN = 23;
 
 #define OLED_DC     6
 #define OLED_CS     10
@@ -43,12 +40,6 @@ void setup(){
   
   Can0.begin(500000); //set speed here. 
   Can1.begin(500000); //set speed here.  
-  
-  pinMode(JOY_LEFT, INPUT_PULLUP);
-  pinMode(JOY_RIGHT, INPUT_PULLUP);
-  pinMode(JOY_CLICK, INPUT_PULLUP);
-  pinMode(JOY_UP, INPUT_PULLUP);
-  pinMode(JOY_DOWN, INPUT_PULLUP); 
   
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC);
