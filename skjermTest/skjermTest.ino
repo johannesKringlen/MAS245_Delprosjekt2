@@ -1,3 +1,5 @@
+// Basert på K. M. Knausgårds eksempelkode for MAS245.
+
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
